@@ -1,0 +1,228 @@
+library(Seurat)
+library(tidyverse)
+library(patchwork)
+library(tidyverse)
+rm(list=ls())
+b<-c('Epi','Endo','Stromal','Tcells','Bcells','Gran','Mye','NK')
+dir.create('QC')
+
+##???寤?Seurat瀵硅薄
+scRNAsub<-CreateSeuratObject(counts = counts,meta.data = Teff.metadata,assay = "RNA")
+
+##璇诲?ユ??浠?
+scRNA2<-readRDS(file="covid_nbt_main.rds")
+Idents(object = scRNA2) <- 'Cluster'
+Treg_activeVSnaive_UP<-read.csv(file = "go.kegg/Tcell/Sub_diff/DEGs/Treg_activeVSnaive_up.csv",header = T,stringsAsFactors = F)
+load('scRNA2.Rdata')
+
+##?????烘??浠?
+saveRDS(Epi_sub,file="Epithelial_2897.rds")
+save(scRNAsub,file="resolution0.2/Integrated data/102520/Mye/Mye_19367.Rdata")
+write.table(freq4,file="resolution0.2/Integrated data/102520/Mye/MyeAnnotation_4.xls",sep="\t")
+write.csv(ce,file="resolution0.2/Integrated data/102520/T cell/T_cell_12202_deRpls/Frequency/New/ce")
+
+##data.frame甯哥?ㄦ??浣?
+#meta.data涓????1???
+scRNA2@meta.data$ident = "Cov"
+#???meta.data涓???????缁?淇℃??
+scRNA2@meta.data$Annotation_1.1 = "NA"
+b<-c(rep("CON1",15663),rep("CON2",10973),rep("CON3",11523),rep("DEX1",13058),rep("DEX2",12798),rep("DEX3",11515),rep("WT1",14646),rep("WT2",19708),rep("WT3",11326)) #???澶?娆℃?版?规??table(scRNA2@meta.data$orig.ident)璁＄??寰????
+a<-scRNA2@meta.data
+group=data.frame(ID=row.names(a),group=b,stringsAsFactors = F)
+for(i in 1:nrow(group)){scRNA2@meta.data$group[which(row.names(scRNA2@meta.data) == group$ID[i])] <- group$group[i]}
+table(scRNA2@meta.data$group)
+#AddMetadata??芥??
+names(b) <- colnames(x = scRNA2)
+scRNAsub<- AddMetaData(
+  object = scRNAsub,
+  metadata = b,
+  col.name = 'Doublet'
+)
+
+#?????插甫?????锋??淇℃??barcodes骞跺??绗?2涓????绱?
+a<-row.names(scRNAsub@meta.data)
+a<-str_split(a,"-") #???"_"?????插??绗?
+a<-lapply(a, function(a) a[2]) #瀵瑰??琛ㄦ??涓?缁??????????绗?2涓????绱?
+a<-unlist(a)
+a<-as.data.frame(a)
+
+#???meta.data涓????璁扮?稿??barcodes瀵瑰????????缇わ??渚?????????哥?????缁????barcodes锛?
+TeffAnnotation0.5<-read.csv(file = "resolution0.2/Integrated data/102520/T cell/T_cell_12202_deRpls/T_2170Annotation_0.5.csv",header = T,stringsAsFactors = F)
+for(i in 1:nrow(ACE2_lo)){scRNAsub@meta.data$ACE2[which(row.names(scRNAsub@meta.data) == row.names(ACE2_lo)[i])] <- ACE2_lo$ACE2[i]}
+table(scRNAsub@meta.data$ACE2)
+
+#?????ㄦ??璁板??缇ょ?????
+Annotation<-read.csv(file = "T_cell_12202_deRpls/gdT/gdT_anno.csv",header = T,stringsAsFactors = F)#immune???缇ょ??缁????绫诲??娉ㄩ?????浠?
+for(i in 1:nrow(Annotation)){scRNA2@meta.data$gdT.anno[which(scRNA2@meta.data$RNA_snn_res.0.3==Annotation$Cluster[i])]<- Annotation$Annotation[i]}
+table(scRNA2@meta.data$gdT.anno)
+
+##??存??active.iden
+Idents(object = Epi_sub) <- 'orig.ident'  #immune???浠ユ??meta.data涓????浠讳??涓?椤?
+#??存??activeAssay
+DefaultAssay(object = scRNA2) <- "integrated"
+DefaultAssay(object = scRNA2) <- "RNA"
+##???绫荤??璁￠?????
+data <- scRNA2@meta.data
+freq1<-data %>% group_by(data$stim,data$Annotation_2)%>% summarise(n=n())
+freq2<-data %>% group_by(data$sampleinf,data$Annotation_2)%>% summarise(n=n())
+freq3<-data %>% group_by(data$Annotation_2,data$stim)%>% summarise(n=n())
+freq4<-data %>% group_by(data$Annotation,data$sampleinf)%>% summarise(n=n())
+write.csv(freq4,file="resolution0.2/Integrated data/102520/Frequency/AnnobySample_freq4.csv")
+#aggregate(x, by, FUN, ..., simplify = TRUE, drop = TRUE)
+
+##??????浜?缇?
+dex.pcp <- subset(scRNA2,  idents = 'DEX_PCP') #??????澶?涓?浜?缇?
+scRNAsub <- subset(scRNA2,  idents = 'gdT') #?????????涓?浜?缇?
+dim(scRNAsub)
+##??????
+Cells.sub <- subset(scRNA@meta.data, celltype=="T_cells")
+dimsummary(Cells.sub$seurat_clusters)
+scRNAsub <- subset(scRNA, cells=row.names(Cells.sub))
+
+##浣????
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = T,pt.size = 1,group.by = "stim")
+DimPlot(Epi_2282,reduction = "tsne",label = TRUE,pt.size = 1,group.by = "group")
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1,group.by = "stim")
+DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.5,split.by = "sampleinf",ncol=3)
+DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.3,split.by = "stim",ncol=3)
+DimPlot(scRNA2,reduction = "umap",label = TRUE,pt.size = 1)
+a<-c("Pecam1","Gpihbp1","Ifi47","Plvap","Sox17","Car4","Cd34","Vwf","Vcam1","Cxcl12","Vegfc","Prox1","Gja4","Cd36","Ednrb","Edn1","Pdpn")
+feature<-FeaturePlot(scRNA2, features = Episub,cols = c("gray", "blue") , reduction = "tsne" , ncol=3)
+VlnPlot(scRNAsub, features = Epi, ncol = 5,pt.size = 0)
+##瀛????
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = T,pt.size = 0.8)
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.8,group.by = "stim")
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1,split.by = "sampleinf",ncol=3)
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.3,split.by = "stim",ncol=3)
+UMAP<-DimPlot(scRNA2,reduction = "umap",label = TRUE,pt.size = 1)
+Feature<-FeaturePlot(scRNA2, reduction = "tsne", features = 'Trem2',cols = c("gray", "blue"))
+Doublets<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1 , group.by = "DF.classifications_0.25_0.09_522")
+violin<-VlnPlot(scRNAsub, features = Epi, pt.size = 0)
+ggsave("resolution0.2/Integrated data/102520/Mye/tSNE_0.4_Anno_1.pdf", plot = tSNE, width = 12, height =8)
+
+
+##?????告?版??澶????
+dir = c('CON_1/', 
+        'CON_2/',
+        'CON_3/',
+        'DEX_PCP_1/',
+        'DEX_PCP_2/',
+        'DEX_PCP_3/',
+        'WT_PCP_1/',
+        'WT_PCP_2/',
+        'WT_PCP_3/')
+scRNAlist <- list()
+#浠ヤ??浠ｇ??浼????姣?涓???锋???????版?????寤轰??涓?seurat瀵硅薄锛?骞跺????惧?板??琛?scRNAlist???
+for(i in 1:length(dir)){
+  counts <- Read10X(data.dir = dir[i])
+  colnames(counts) <- paste(sub("-.*$","",colnames(counts)),i,sep="-")
+  scRNAlist[[i]] <- CreateSeuratObject(counts, min.cells=1)
+}
+scRNA2 <- merge(scRNAlist[[1]], y=c(scRNAlist[[2]], scRNAlist[[3]], 
+                                    scRNAlist[[4]], scRNAlist[[5]], scRNAlist[[6]], scRNAlist[[7]], 
+                                    scRNAlist[[8]], scRNAlist[[9]]))
+#???娉ㄧ????????缇や俊???
+EpiAnnotation<-read.csv(file = "resolution0.2/Integrated data/102520/Epi/EpiAnnotation.csv",header = T,stringsAsFactors = F)
+for(i in 1:nrow(Teffmetadata)){scRNAsub@meta.data$Annotation[which(rownames(scRNAsub@meta.data)#?????????row.names(scRNA2@meta.data)
+                                                        == rownames(Teffmetadata)[i])] <- Teffmetadata$Annotation[i]}
+table(scRNAsub@meta.data$Annotation)
+#涓?orig.ident???娉ㄦ?锋??淇℃??
+a<-row.names(scRNA2@meta.data)
+a<-str_split(a,"-") #???"-"?????插??绗?
+a<-lapply(a, function(a) a[2]) #瀵瑰??琛ㄦ??涓?缁??????????绗?2涓????绱?
+a<-unlist(a)
+a<-as.data.frame(a)
+table(a) #??ョ??姣?涓???锋?????涓????
+b<-c(rep("CON1",11562),rep("CON2",9213),rep("CON3",9719),rep("DEX1",10485),rep("DEX2",10379),rep("DEX3",9153),rep("WT1",11568),rep("WT2",11243),rep("WT3",9818))
+names(a) <- colnames(x = scRNA2)
+scRNA2<- AddMetaData(
+           object = scRNA2,
+           metadata = a,
+           col.name = 'Group')
+table(scRNA2@meta.data$Group)
+
+scRNA2<-Cluster0
+Cluster0<-subset(scRNA2,  idents = "0")
+
+#璇诲??CSV??煎?????琛ㄨ揪??╅??
+rm(list=ls())
+options(stringsAsFactors = F)
+library(Seurat)
+# Load data 
+dir='./'
+Sys.time()
+integrated.data <- read.csv(file = "resolution0.2/1.Expression/1.Integrated_matrix/Matrix/Integrated_gene_expression.csv" , header=T, row.names = 1)
+#integrated.data <- read.csv(file = "resolution0.2/1.Expression/1.Integrated_matrix/Matrix/Integrated_gene_expression.csv",  header=T, row.names = 1)
+Sys.time()
+dim(integrated.data)
+raw.data[1:4,1:4]
+head(colnames(raw.data)) 
+# Load metadata 
+metadata <- read.csv(file = "resolution0.2/3.Cluster_and_diff/meta.data.csv", row.names=1, header=T)
+head(metadata)
+# Create the Seurat object with all the data (unfiltered) ###
+scRNA2 <- CreateSeuratObject(counts = integrated.data)
+# add rownames to metadta 
+row.names(metadata) <- metadata$cell_id
+# add metadata to Seurat object 锛?锛?锛????杩?琛???拌??涓?姝?
+scRNA2 <- AddMetaData(object = scRNA2, metadata = metadata)
+main_tiss <- AddMetaData(object = main_tiss, percent.ercc, col.name = "percent.ercc")
+# Head to check
+head(main_tiss@meta.data)
+
+#璇诲?ュぇ???CSV??煎?????浠?
+library(data.table) 
+system.time()
+integrated_counts <- fread(input = "resolution0.2/1.Expression/1.Integrated_matrix/Matrix/Integrated_gene_expression.csv", stringsAsFactors = F, header=T)
+system.time()
+
+for(i in 1:nrow(meta.data)){a$nCount_RNA[which(row.names(a) == row.names(meta.data)[i])] <- meta.data$nCount_RNA[i]}
+table(scRNA2@meta.data$Annotation_1)
+
+
+dev.off()
+
+##???缁???惧樊寮?琛ㄨ揪??哄??(涓???????浜?缇?)
+scRNA2$Cluster_level <- paste(scRNA2@meta.data$RNA_snn_res.0.3, scRNA2@meta.data$ACE2, sep = "_")
+scRNA2$celltype <- Idents(immune.combined)
+Idents(scRNA2) <- "RNA_snn_res.0.2"
+ACE2_HivsLo_All<- FindMarkers(scRNAsub, ident.1 = 'Hi', ident.2 = 'Lo', verbose = FALSE,min.pct = 0, logfc.threshold = 0.5)
+C2_WTvsCON <- FindMarkers(scRNA2, ident.1 = "2_WT_PCP", ident.2 = "2_CON", verbose = FALSE,min.pct = 0.25, logfc.threshold = 0.25)
+head(AT1_DEXvsWT, n = 15)
+write.csv(C1_DEXvsWT,file="resolution0.2/Integrated data/102520/Epi/DEGs/C5_DEXvsWT.csv")
+write.csv(C1_WTvsCON,file="resolution0.2/Integrated data/102520/Epi/DEGs/C5_WTvsCON.csv")
+
+C0vsC1<- FindMarkers(scRNA2, ident.1 = 0, ident.2 = 1, verbose = FALSE,min.pct = 0.25, logfc.threshold = 0.25)
+C0_DEXvsWT<- FindMarkers(scRNA2, ident.1 = '0_DEX_PCP', ident.2 = '0_WT_PCP', verbose = FALSE,min.pct = 0.25, logfc.threshold = 0.25)
+write.csv(C1_DEXvsWT,file="resolution0.2/Integrated data/102520/Stromal/DEGs/C1_DEXvsWT.csv")
+write.csv(C1_WTvsCON,file="resolution0.2/Integrated data/102520/Stromal/DEGs/C1_WTvsCON.csv")
+
+C6<- FindMarkers(scRNA2, ident.1 = 6, verbose = FALSE,min.pct = 0.25, logfc.threshold = 0.25)
+write.csv(C1,file="resolution0.2/Integrated data/102520/Epi/DEGs/C1_Pan.csv")
+
+##??????瀛????
+tmp <- subset(tmp, subset = (tmp$orig.ident=='HNC01TIL'|tmp$orig.ident=='Tonsil2')&tmp$celltype_Monaco=='T cells')
+sub.cells <- rownames(tmp)
+scRNAsub <- subset(scRNA, cells=sub.cells)
+
+##??婚?ゅ?哄??
+scRNA2<-subset(scRNA2, features=rownames(scRNA2)[-grep("^Rp[sl]",rownames(scRNA2))])
+
+##璁＄??骞冲??琛ㄨ揪???
+Tem2vsTem1_Marker_UP<-row.names(Tem2vsTem1_Marker_UP)
+Tem2vsTem1_Marker_down<-row.names(Tem2vsTem1_Marker_down)
+cluster.averages.up<-AverageExpression(scRNA2,assays='RNA',features=Tem2vsTem1_Marker_UP)
+cluster.averages.down<-AverageExpression(scRNA2,assays='RNA',features=Tem2vsTem1_Marker_down)
+cluster.averages.up<-as.data.frame(cluster.averages.up)
+cluster.averages.down<-as.data.frame(cluster.averages.down)
+write.csv(cluster.averages.up,file="go.kegg/Tcell/Sub_diff/DEGs/Teff_Cluster6/ave.exp_Tem2vsTem1_Marker_up.csv")
+write.csv(cluster.averages.down,file="go.kegg/Tcell/Sub_diff/DEGs/Teff_Cluster6/ave.exp_Tem2vsTem1_Marker_down.csv")
+
+gdT1vs0 <- 
+  FindMarkers(scRNA2, ident.1 = "Th_undefined",ident.2 = "Th17",verbose = FALSE,min.pct = 0.1, logfc.threshold = 0.5,only.pos = F)
+cluster.averages<-AverageExpression(scRNA2,assays='RNA',features='ACE2')
+cluster.averages<-as.data.frame(cluster.averages)
+write.csv(cluster.averages,file="resolution0.2/Integrated data/102520/Mye/cluster.averages_Trem2inAM.csv")
+
+cluster.averages<-AverageExpression(Epi_sub,assays='RNA',features='ACE2')
+write.csv(cluster.averages,file="go.kegg/Tcell/Group_diff/DEGs/cluster.averages.Rest.Tcell_DEXvsWT_down.csv")
