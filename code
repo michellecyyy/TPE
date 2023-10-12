@@ -1,0 +1,143 @@
+library(Seurat)
+library(tidyverse)
+library(patchwork)
+library(tidyverse)
+
+scRNAsub<-CreateSeuratObject(counts = counts,meta.data = ,assay = "RNA")
+
+scRNA2<-readRDS(file="")
+Idents(object = scRNA2) <- 'Cluster'
+TregVSnaive_UP<-read.csv(file = "",header = T,stringsAsFactors = F)
+
+save(,file="")
+write.table(,file="",sep="\t")
+write.csv(,file="")
+
+scRNA2@meta.data$ident = "
+scRNA2@meta.data$Annotation_1.1 = ""
+a<-scRNA2@meta.data
+group=data.frame(ID=row.names(a),group=b,stringsAsFactors = F)
+for(i in 1:nrow(group)){scRNA2@meta.data$group[which(row.names(scRNA2@meta.data) == group$ID[i])] <- group$group[i]}
+table(scRNA2@meta.data$group)
+names(b) <- colnames(x = scRNA2)
+scRNAsub<- AddMetaData(
+  object = scRNAsub,
+  metadata = b,
+  col.name = 'Doublet'
+)
+
+a<-row.names(scRNAsub@meta.data)
+a<-str_split(a,"-") 
+a<-lapply(a, function(a) a[2]) 
+a<-unlist(a)
+a<-as.data.frame(a)
+
+Annotation0.5<-read.csv(file = "",header = T,stringsAsFactors = F)
+for(i in 1:nrow(ACE2_lo)){scRNAsub@meta.data$[which(row.names(scRNAsub@meta.data) == row.names(_lo)[i])] <- _lo$A[i]}
+table(scRNAsub@meta.data$)
+
+Idents(object = ) <- 'orig.ident' 
+DefaultAssay(object = scRNA2) <- "integrated"
+DefaultAssay(object = scRNA2) <- "RNA"
+data <- scRNA2@meta.data
+freq1<-data %>% group_by(data$stim,data$Annotation_2)%>% summarise(n=n())
+freq2<-data %>% group_by(data$sampleinf,data$Annotation_2)%>% summarise(n=n())
+freq3<-data %>% group_by(data$Annotation_2,data$stim)%>% summarise(n=n())
+freq4<-data %>% group_by(data$Annotation,data$sampleinf)%>% summarise(n=n())
+
+dex.pcp <- subset(scRNA2,  idents = '') 
+scRNAsub <- subset(scRNA2,  idents = '') 
+
+Cells.sub <- subset(scRNA@meta.data, celltype=="")
+dimsummary(Cells.sub$seurat_clusters)
+scRNAsub <- subset(scRNA, cells=row.names(Cells.sub))
+
+DimPlot(scRNA2,reduction = "tsne",label = T,pt.size = 1,group.by = "stim")
+DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1,group.by = "group")
+DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1,group.by = "stim")
+DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.5,split.by = "sampleinf",ncol=3)
+DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.3,split.by = "stim",ncol=3)
+DimPlot(scRNA2,reduction = "umap",label = TRUE,pt.size = 1)
+VlnPlot(scRNAsub, features = , ncol = 5,pt.size = 0)
+
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = T,pt.size = 0.8)
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.8,group.by = "stim")
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1,split.by = "sampleinf",ncol=3)
+tSNE<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 0.3,split.by = "stim",ncol=3)
+UMAP<-DimPlot(scRNA2,reduction = "umap",label = TRUE,pt.size = 1)
+Feature<-FeaturePlot(scRNA2, reduction = "tsne", features = '',cols = c("gray", "blue"))
+Doublets<-DimPlot(scRNA2,reduction = "tsne",label = TRUE,pt.size = 1 , group.by = "DF.classifications_0.25_0.09_522")
+violin<-VlnPlot(scRNAsub, features = , pt.size = 0)
+
+
+dir = c()
+scRNAlist <- list()
+for(i in 1:length(dir)){
+  counts <- Read10X(data.dir = dir[i])
+  colnames(counts) <- paste(sub("-.*$","",colnames(counts)),i,sep="-")
+  scRNAlist[[i]] <- CreateSeuratObject(counts, min.cells=1)
+}
+scRNA2 <- merge(scRNAlist[[1]], y=c()
+EpiAnnotation<-read.csv(file = "",header = T,stringsAsFactors = F)
+for(i in 1:nrow(Teffmetadata)){scRNAsub@meta.data$Annotation[which(rownames(scRNAsub@meta.data)                                                        == }
+table(scRNAsub@meta.data$Annotation)
+
+a<-row.names(scRNA2@meta.data)
+a<-str_split(a,"-") 
+a<-lapply(a, function(a) a[2]) 
+a<-unlist(a)
+a<-as.data.frame(a)
+table(a) 
+names(a) <- colnames(x = scRNA2)
+scRNA2<- AddMetaData(
+           object = scRNA2,
+           metadata = a,
+           col.name = 'Group')
+table(scRNA2@meta.data$Group)
+
+scRNA2<-Cluster0
+Cluster0<-subset(scRNA2,  idents = "0")
+
+rm(list=ls())
+options(stringsAsFactors = F)
+library(Seurat)
+dir='./'
+Sys.time()
+integrated.data <- read.csv(file = "" , header=T, row.names = 1)
+Sys.time()
+dim(integrated.data)
+raw.data[1:4,1:4]
+head(colnames(raw.data)) 
+# Load metadata 
+metadata <- read.csv(file = "", row.names=1, header=T)
+head(metadata)
+
+scRNA2 <- CreateSeuratObject(counts = integrated.data)
+row.names(metadata) <- metadata$cell_id
+scRNA2 <- AddMetaData(object = scRNA2, metadata = metadata)
+main_tiss <- AddMetaData(object = main_tiss, percent.ercc, col.name = "percent.ercc")
+head(main_tiss@meta.data)
+
+library(data.table) 
+system.time()
+integrated_counts <- fread(input = "", stringsAsFactors = F, header=T)
+system.time()
+
+for(i in 1:nrow(meta.data)){a$nCount_RNA[which(row.names(a) == row.names(meta.data)[i])] <- meta.data$nCount_RNA[i]}
+table(scRNA2@meta.data$Annotation_1)
+
+
+dev.off()
+
+scRNA2$Cluster_level <- paste(scRNA2@meta.data$RNA_snn_res.0.3, scRNA2@meta.data$, sep = "_")
+scRNA2$celltype <- Idents(immune.combined)
+Idents(scRNA2) <- "RNA_snn_res.0.2"
+HivsLo_All<- FindMarkers(scRNAsub, ident.1 = 'Hi', ident.2 = 'Lo', verbose = FALSE,min.pct = 0, logfc.threshold = 0.5)
+
+<- FindMarkers(scRNA2, ident.1 = 0, ident.2 = 1, verbose = FALSE,min.pct = 0.25, logfc.threshold = 0.25)
+<- FindMarkers(scRNA2, ident.1 = '', ident.2 = '', verbose = FALSE,min.pct = 0.25, logfc.threshold = 0.25)
+
+cluster.averages.up<-AverageExpression(scRNA2,assays='RNA',features=Marker_UP)
+cluster.averages.down<-AverageExpression(scRNA2,assays='RNA',features=Marker_down)
+cluster.averages.up<-as.data.frame(cluster.averages.up)
+cluster.averages.down<-as.data.frame(cluster.averages.down)
